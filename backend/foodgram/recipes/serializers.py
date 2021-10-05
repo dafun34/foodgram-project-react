@@ -8,6 +8,7 @@ class ComponentsSerializer(serializers.ModelSerializer):
         model = Components
         fields = '__all__'
 
+
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = ComponentsSerializer(many=True, read_only=True)
     author = UserSerializer()
