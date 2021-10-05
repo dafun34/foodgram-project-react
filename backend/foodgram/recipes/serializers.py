@@ -2,6 +2,7 @@ from rest_framework import serializers
 from users.serializers import UserSerializer
 from .models import Recipe, Ingredients, Tag, Components
 
+
 class ComponentsSerializer(serializers.ModelSerializer):
     ingredients = serializers.StringRelatedField()
     class Meta:
