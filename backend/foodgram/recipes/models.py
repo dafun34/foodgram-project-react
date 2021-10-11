@@ -1,36 +1,25 @@
 from django.db import models
 from users.models import User
 
+
 class Tag(models.Model):
     name = models.CharField(max_length=200, blank=False)
-    color = models.CharField(max_length=7, blank=True)
-    slug = models.SlugField(max_length=200, unique=True)
+    color = models.CharField(max_length=7, blank=True, null=True)
+    slug = models.SlugField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return self.name[:15]
-
 
 
 class Ingredients(models.Model):
     name = models.CharField(max_length=200,
-                            verbose_name='Название ингридиента'
+                            verbose_name='Название ингридиента',
                             )
     measurement_unit = models.CharField(max_length=200,
                                         verbose_name='Еденица измерения')
 
-
     def __str__(self):
         return self.name[:15]
-
-
-class Components(models.Model):
-    ingredients = models.ForeignKey(Ingredients, on_delete=models.CASCADE)
-    amount = models.SmallIntegerField()
-
-    def __str__(self):
-        return (f'{self.ingredients.name},'
-                f' {self.amount} '
-                f'{self.ingredients.measurement_unit}')
 
 
 class Recipe(models.Model):
@@ -40,8 +29,10 @@ class Recipe(models.Model):
 
     name = models.CharField(max_length=200,
                             blank=False,
-                            verbose_name='Название',
+                            verbose_name='Название'
                             )
+
+    tag = models.ManyToManyField(Tag, related_name='recipe')
 
     image = models.ImageField(upload_to='recipes/',
                               blank=False
@@ -51,55 +42,32 @@ class Recipe(models.Model):
                             verbose_name='Описание',
                             )
 
-    ingredients = models.ManyToManyField(Components)
-
-    tag = models.ManyToManyField(Tag, blank=False)
-
-
+    ingredients = models.ManyToManyField('Components')
 
     cooking_time = models.PositiveSmallIntegerField(
                                        verbose_name='Время приготовления',
                                        blank=False,
                                        help_text='Время приготовления в минутах'
     )
+
     def __str__(self):
         return self.name
 
 
-class Favorite(models.Model):
-    user = models.ForeignKey(User,
-                             related_name='favorite',
-                             on_delete=models.CASCADE)
-
-    recipe = models.ForeignKey(Recipe,
-                               related_name='favorite',
-                               on_delete=models.CASCADE)
-
-    class Meta:
-        constraints =[
-        models.UniqueConstraint(fields=['user', 'recipe'],
-                                name='user_recipe')
-        ]
-
-
-class Follow(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='follower')
-    author = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name='following')
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'author'],
-                                    name='user_follow')
-        ]
-
-
-class Cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='cart')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='cart')
-
+class Components(models.Model):
+    amount = models.PositiveSmallIntegerField()
+    ingredient = models.ForeignKey(Ingredients,
+                                   on_delete=models.CASCADE,
+                                   related_name='ingredient')
+    component_in_recipe = models.ForeignKey(Recipe,
+                                            on_delete=models.CASCADE,
+                                            blank=True,
+                                            null=True, related_name='component')
     def __str__(self):
-        return self.recipe.name
+        ingredient = self.ingredient
+        measurement_unit = self.ingredient.measurement_unit
+        amount = self.amount
+        return f'{ingredient}: {amount} {measurement_unit}'
+
+
 
