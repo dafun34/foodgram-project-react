@@ -6,7 +6,10 @@ from .serializers import (RecipeListSerializer,
                           IngredientsSerializer,
                           RecipeCreateSerializer,
                           ComponentsCreateSerializer,
-                          TagsSerializer)
+                          TagsSerializer,
+                          )
+
+
 
 
 class TagsViewSet(viewsets.ModelViewSet):
@@ -35,4 +38,3 @@ class ComponentsViewSet(viewsets.ModelViewSet):
         if self.action in ('create', 'update', 'partial_update'):
             return ComponentsCreateSerializer
         return ComponentsListSerializer
-

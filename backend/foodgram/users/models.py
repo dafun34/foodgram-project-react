@@ -26,3 +26,12 @@ class User(AbstractUser):
     password = models.CharField(max_length=150,
                                 blank=False,
                                 verbose_name='Пароль')
+
+
+class Subscriptions(models.Model):
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name='follower')
+    author = models.ForeignKey(User,
+                               on_delete=models.CASCADE,
+                               related_name='following')

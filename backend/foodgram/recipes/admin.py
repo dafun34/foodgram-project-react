@@ -7,11 +7,13 @@ from .models import (User,
                      Tag
                      )
 
+
 class TagAdmin(admin.ModelAdmin):
     list_display = ('id',
                     'name',
                     'color',
                     'slug')
+
 
 class component_inline(admin.TabularInline):
     model = Components
