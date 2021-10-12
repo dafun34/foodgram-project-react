@@ -10,7 +10,6 @@ from rest_framework.generics import get_object_or_404
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
 
 class SubscriptionsList(viewsets.ModelViewSet):
@@ -21,6 +20,15 @@ class SubscriptionsList(viewsets.ModelViewSet):
         serializer = SubscriptionsSerializer(queryset, many=True)
         return Response(serializer.data)
 
+
+class SubscriptionsCreate(viewsets.ModelViewSet):
+    serializer_class = SubscriptionsSerializer
+    def get_queryset(self):
+        user = self.request.user
+        user_id = self.kwargs.get('user_id')
+        author = get_object_or_404(User, id=user_id)
+        subscribe = Subscriptions.objects.create(user=user, author=author)
+        return subscribe
 
 
 

@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from .models import User
-from .views import UserViewSet, SubscriptionsList
+from .views import UserViewSet, SubscriptionsList, SubscriptionsCreate
 
 router = DefaultRouter()
 
@@ -12,7 +12,7 @@ subscriptions_create = SubscriptionsList.as_view({'get': 'create',
                                                   'delete': 'destroy'})
 router.register(
     r'users/(?P<user_id>[0-9]+)/subscribe',
-    SubscriptionsList,
+    SubscriptionsCreate,
     basename='subscribe'
 )
 urlpatterns = [
