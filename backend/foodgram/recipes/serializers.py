@@ -1,6 +1,10 @@
-from rest_framework import serializers
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers, status
+from rest_framework.response import Response
+from rest_framework.request import Request
+from users.models import User
 from users.serializers import UserSerializer
-from .models import Recipe, Ingredients, Components, Tag
+from .models import Recipe, Ingredients, Components, Tag, Favorite
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -48,6 +52,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
     ingredients = ComponentsListSerializer(many=True)
     author = UserSerializer()
     tag = TagsSerializer(many=True)
+    is_favorited = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -58,7 +63,19 @@ class RecipeListSerializer(serializers.ModelSerializer):
                   'name',
                   'image',
                   'text',
-                  'cooking_time')
+                  'cooking_time',
+                  'is_favorited')
+    def get_is_favorited(self,obj):
+        author = obj.author.id
+        recipe_id = obj.id
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        author = get_object_or_404(User, id=author)
+        request = self.context.get('request')
+        user = request.user
+        result = Favorite.objects.filter(user=user,recipe=recipe).exists()
+        return result
+
+
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -67,9 +84,21 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     tag = serializers.SlugRelatedField(queryset=Tag.objects.all(),
                                        slug_field='id', many=True)
     ingredients = ComponentsCreateSerializer(source='component', many=True)
+    is_favorited = serializers.SerializerMethodField()
     class Meta:
         model = Recipe
-        fields = '__all__'
+        fields = ('id',
+                  'tags',
+                  'author',
+                  'ingredients',
+                  'name',
+                  'image',
+                  'text',
+                  'cooking_time',
+                  'is_favorited',)
+
+    def get_is_favorited(self, obj):
+        return str(obj.id)
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('component')

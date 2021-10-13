@@ -4,7 +4,8 @@ from .models import (User,
                      Recipe,
                      Ingredients,
                      Components,
-                     Tag
+                     Tag,
+                     Favorite
                      )
 
 
@@ -22,7 +23,7 @@ class component_inline(admin.TabularInline):
 
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (component_inline,)
-    list_display = ('name', 'cooking_time')
+    list_display = ('id', 'name', 'cooking_time')
 
 
 class IngredientsAdmin(admin.ModelAdmin):
@@ -34,7 +35,11 @@ class ComponentsAdmin(admin.ModelAdmin):
 
     list_display = ( 'ingredient', 'component_in_recipe', 'amount')
 
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('user', 'recipe')
+
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Ingredients, IngredientsAdmin)
 admin.site.register(Components, ComponentsAdmin)
+admin.site.register(Favorite, FavoriteAdmin)

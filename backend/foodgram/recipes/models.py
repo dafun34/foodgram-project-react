@@ -70,4 +70,15 @@ class Components(models.Model):
         return f'{ingredient}: {amount} {measurement_unit}'
 
 
+class Favorite(models.Model):
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name='favorite')
+    recipe = models.ForeignKey(Recipe,
+                               on_delete=models.CASCADE,
+                               related_name='favorite')
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique_recipe_add')]
