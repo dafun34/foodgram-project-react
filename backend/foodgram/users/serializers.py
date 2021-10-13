@@ -14,12 +14,10 @@ class UserSerializer(serializers.ModelSerializer):
                   'last_name',)
 
 
-
-class SubscriptionsSerializer(serializers.ModelSerializer):
-    author = UserSerializer()
+class SubscriptionsListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscriptions
-        fields = ('author',)
+        fields = ('author', 'user')
 
 class SubscribeCreateSerializer(serializers.ModelSerializer):
     email = serializers.SlugRelatedField(queryset=User.objects.all(),

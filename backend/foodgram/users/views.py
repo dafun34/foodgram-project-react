@@ -1,11 +1,11 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import generics, status, viewsets
 from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, \
     ListModelMixin
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from .serializers import UserSerializer, SubscriptionsSerializer, SubscribeCreateSerializer
+from .serializers import UserSerializer, SubscribeCreateSerializer, SubscriptionsListSerializer
 from .models import User, Subscriptions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
@@ -21,30 +21,33 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class SubscriptionsList(viewsets.ModelViewSet):
-
-    def list(self, request):
+class SubscriptionsList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    def get_queryset(self):
         user = self.request.user
-        queryset = Subscriptions.objects.filter(user=user)
-        serializer = SubscriptionsSerializer(queryset, many=True)
-        return Response(serializer.data)
+        return User.objects.filter(following__user=user)
 
-
-class SubscriptionsCreate(viewsets.ModelViewSet):
-    http_method_names = ['get', 'delete']
-    queryset = Subscriptions.objects.all()
-    serializer_class = SubscriptionsSerializer
-
-    def list(self,request, user_id):
-        user = self.request.user
-        user_id = self.kwargs.get('user_id')
+class SubscribeCreate(APIView):
+    def get(self, request, user_id):
+        data = {'user': request.user.id, 'author': user_id}
+        serializer = SubscriptionsListSerializer(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         author = get_object_or_404(User, id=user_id)
-        subscribe = Subscriptions.objects.create(user=user, author=author)
-        serializer = UserSerializer(author)
-        return Response(serializer.data)
+        serializer_user = UserSerializer(author)
+        return Response(serializer_user.data, status=status.HTTP_201_CREATED)
 
-    def destroy(self, request, user_id):
-        user = self.request.user
-        user_id = self.kwargs.get('user_id')
+    def delete(self, request, user_id):
+        user = request.user
+        author = get_object_or_404(User, id=user_id)
+        subscription = get_object_or_404(Subscriptions, user=user,
+                                         author=author)
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
 
 
