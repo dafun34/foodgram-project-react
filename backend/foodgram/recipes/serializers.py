@@ -2,6 +2,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.request import Request
+from rest_framework.validators import UniqueTogetherValidator
+
 from users.models import User
 from users.serializers import UserSerializer
 from .models import Recipe, Ingredients, Components, Tag, Favorite
@@ -82,7 +84,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     tag = serializers.SlugRelatedField(queryset=Tag.objects.all(),
                                        slug_field='id', many=True)
     ingredients = ComponentsCreateSerializer(source='component', many=True)
-    is_favorited = serializers.SerializerMethodField()
+
     class Meta:
         model = Recipe
         fields = ('id',
@@ -92,11 +94,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                   'name',
                   'image',
                   'text',
-                  'cooking_time',
-                  'is_favorited',)
+                  'cooking_time',)
 
-    def get_is_favorited(self, obj):
-        return str(obj.id)
+
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('component')
@@ -119,4 +119,22 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 class FavoriteCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
-        fields = ('user', 'recipe')
+        fields = ('user',
+                  'recipe')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Favorite.objects.all(),
+                fields=['recipe', 'user'],
+                message='Этот рецепт уже есть у вас в избранном'
+            )
+        ]
+
+class FavoriteRecipeViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id',
+                  'name',
+                  'image',
+                  'cooking_time')
+
+

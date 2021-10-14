@@ -10,7 +10,8 @@ from .serializers import (RecipeListSerializer,
                           RecipeCreateSerializer,
                           ComponentsCreateSerializer,
                           TagsSerializer,
-                          FavoriteCreateSerializer
+                          FavoriteCreateSerializer,
+                          FavoriteRecipeViewSerializer
                           )
 
 
@@ -43,10 +44,19 @@ class ComponentsViewSet(viewsets.ModelViewSet):
 
 class FavoriteCreate(APIView):
     def get(self, request, recipe_id):
-        recipe = get_object_or_404(Recipe, recipe_id)
+        recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user.id
         data = {'user': user, 'recipe': recipe.id}
         serializer = FavoriteCreateSerializer(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status.HTTP_201_CREATED)
+        recipe_serializer = FavoriteRecipeViewSerializer(recipe)
+        return Response(recipe_serializer.data, status.HTTP_201_CREATED)
+
+    def delete(self, request, recipe_id):
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        user = self.request.user
+        favorite = get_object_or_404(Favorite, user=user, recipe=recipe)
+        favorite.delete()
+        return Response(status.HTTP_204_NO_CONTENT)
+

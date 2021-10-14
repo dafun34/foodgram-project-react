@@ -55,7 +55,7 @@ class SubscriptionsListSerializer(serializers.ModelSerializer):
             UniqueTogetherValidator(
                 queryset=Subscriptions.objects.all(),
                 fields=['author', 'user'],
-                message='Такая запись уже есть в БД'
+                message='Это автор уже у вас в друзьях'
             )
         ]
 
