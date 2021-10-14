@@ -5,7 +5,7 @@ from .models import User, Subscriptions
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'first_name', 'last_name', 'email')
-    list_filter = ('email', 'username')
+    list_filter = ('email', 'username', )
 
 
 class SubscriptionsAdmin(admin.ModelAdmin):

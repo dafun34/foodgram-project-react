@@ -23,9 +23,7 @@ class User(AbstractUser):
                                  blank=False,
                                  verbose_name='Фамилия'
                                  )
-    password = models.CharField(max_length=150,
-                                blank=False,
-                                verbose_name='Пароль')
+
 
 
 class Subscriptions(models.Model):
@@ -39,5 +37,10 @@ class Subscriptions(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['user', 'author'],
-                                    name='unique_subscribe')
+                                    name='unique_subscribe'),
+            models.CheckConstraint(
+                check=~models.Q(user_id=models.F('author_id')),
+                name="follower_is_not_following",
+            ),
+
         ]

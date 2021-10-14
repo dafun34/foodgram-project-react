@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (RecipeViewSet,
                     ComponentsViewSet,
                     IngredientsViewSet,
-                    TagsViewSet)
+                    TagsViewSet, FavoriteCreate)
 
 router = DefaultRouter()
 router.register('recipes', RecipeViewSet, basename='recipe')
@@ -13,5 +13,6 @@ router.register('ingredients', IngredientsViewSet, basename='ingredients')
 
 
 urlpatterns = [
+    path('recipes/<int:recipe_id>/favorite/', FavoriteCreate.as_view(), name='favorite_create'),
     path('', include(router.urls))
 ]

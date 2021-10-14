@@ -60,19 +60,17 @@ class RecipeListSerializer(serializers.ModelSerializer):
                   'tag',
                   'author',
                   'ingredients',
+                  'is_favorited',
                   'name',
                   'image',
                   'text',
                   'cooking_time',
-                  'is_favorited')
+                  )
     def get_is_favorited(self,obj):
         author = obj.author.id
-        recipe_id = obj.id
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        author = get_object_or_404(User, id=author)
         request = self.context.get('request')
         user = request.user
-        result = Favorite.objects.filter(user=user,recipe=recipe).exists()
+        result = Favorite.objects.filter(user=user,recipe=obj).exists()
         return result
 
 
@@ -88,7 +86,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id',
-                  'tags',
+                  'tag',
                   'author',
                   'ingredients',
                   'name',
@@ -117,3 +115,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             recipe.ingredients.add(component)
         return recipe
 
+
+class FavoriteCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = ('user', 'recipe')
