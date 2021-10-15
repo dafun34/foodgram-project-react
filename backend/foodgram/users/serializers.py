@@ -83,5 +83,3 @@ class SubscriptionsListSerializer(serializers.ModelSerializer):
             )
         ]
 
-class MySubscriptionsSerializer(serializers.Serializer):
-    pass

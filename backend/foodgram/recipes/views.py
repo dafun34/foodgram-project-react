@@ -60,3 +60,9 @@ class FavoriteCreate(APIView):
         favorite.delete()
         return Response(status.HTTP_204_NO_CONTENT)
 
+
+class CardAddRecipeView(APIView):
+    def get(self, request, recipe_id):
+        users = self.request.user
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        pass
