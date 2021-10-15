@@ -11,14 +11,13 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 
 
-
-
 class SubscriptionsList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     def get_queryset(self):
         user = self.request.user
         return User.objects.filter(following__user=user)
+
 
 class SubscribeCreate(APIView):
     def get(self, request, user_id):

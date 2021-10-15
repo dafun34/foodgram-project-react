@@ -19,7 +19,6 @@ class TagsSerializer(serializers.ModelSerializer):
                   'slug')
 
 
-
 class IngredientsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredients
@@ -40,6 +39,7 @@ class ComponentsListSerializer(serializers.ModelSerializer):
                   'amount',
                   'measurement_unit')
 
+
 class ComponentsCreateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='ingredient.id')
 
@@ -47,7 +47,6 @@ class ComponentsCreateSerializer(serializers.ModelSerializer):
         model = Components
         fields = ('id',
                   'amount')
-
 
 
 class RecipeListSerializer(serializers.ModelSerializer):
@@ -68,6 +67,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
                   'text',
                   'cooking_time',
                   )
+
     def get_is_favorited(self,obj):
         author = obj.author.id
         request = self.context.get('request')
@@ -76,10 +76,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
         return result
 
 
-
-
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    """ здесь переопределить сериалайзер на кастомный(serializers.Serializer)"""
     image = Base64ImageField()
     tag = serializers.SlugRelatedField(queryset=Tag.objects.all(),
                                        slug_field='id', many=True)
@@ -95,8 +92,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                   'image',
                   'text',
                   'cooking_time',)
-
-
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('component')
@@ -115,6 +110,30 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             recipe.ingredients.add(component)
         return recipe
 
+    def update(self, instance, validated_data):
+        ingredients_data = validated_data.pop('component')
+        tags = validated_data.pop('tag')
+        for item in validated_data:
+            if Recipe._meta.get_field(item):
+                setattr(instance, item, validated_data[item])
+        instance.tag.clear()
+        for tag in tags:
+            instance.tag.add(tag)
+
+        Components.objects.filter(component_in_recipe=instance).delete()
+        for ingredient in ingredients_data:
+            some_compo = dict(ingredient)
+            ingredient = some_compo['ingredient']
+            amount = some_compo['amount']
+            component = Components.objects.create(
+                ingredient=Ingredients.objects.get(pk=ingredient['id']),
+                amount=amount,
+                component_in_recipe=instance
+            )
+            instance.ingredients.add(component)
+        instance.save()
+        return instance
+
 
 class FavoriteCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -128,6 +147,7 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
                 message='Этот рецепт уже есть у вас в избранном'
             )
         ]
+
 
 class FavoriteRecipeViewSerializer(serializers.ModelSerializer):
     class Meta:

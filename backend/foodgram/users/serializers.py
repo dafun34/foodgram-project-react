@@ -1,16 +1,27 @@
 from django.shortcuts import get_object_or_404
+
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-
-from users.models import User
-from .models import Subscriptions
+from recipes.models import Favorite, Recipe
+from users.models import User, Subscriptions
 from djoser.serializers import UserCreateSerializer
 from djoser.serializers import UserCreateSerializer
 from rest_framework import validators
+from rest_framework.response import Response
+
+
+class FavoriteRecipeViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id',
+                  'name',
+                  'image',
+                  'cooking_time')
 
 
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -19,7 +30,8 @@ class UserSerializer(serializers.ModelSerializer):
                   'username',
                   'first_name',
                   'last_name',
-                  'is_subscribed',)
+                  'is_subscribed',
+                  'recipes')
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
@@ -30,6 +42,18 @@ class UserSerializer(serializers.ModelSerializer):
         else:
             result = Subscriptions.objects.filter(user=obj, author=user).exists()
         return result
+
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        recipes_limit = request.query_params.get('recipes_limit')
+        context = {'request': request}
+        if recipes_limit is not None:
+            recipes = obj.recipe.all()[:int(recipes_limit)]
+        else: recipes = obj.recipe.all()
+        serializer = FavoriteRecipeViewSerializer(data=recipes, many=True, context=context)
+        serializer.is_valid()
+        return serializer.data
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -59,6 +83,5 @@ class SubscriptionsListSerializer(serializers.ModelSerializer):
             )
         ]
 
-
-
-
+class MySubscriptionsSerializer(serializers.Serializer):
+    pass
