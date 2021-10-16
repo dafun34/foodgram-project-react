@@ -6,7 +6,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import User
 from users.serializers import UserSerializer
-from .models import Recipe, Ingredients, Components, Tag, Favorite
+from .models import Recipe, Ingredients, Components, Tag, Favorite, ShoppingCard
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -158,3 +158,15 @@ class FavoriteRecipeViewSerializer(serializers.ModelSerializer):
                   'cooking_time')
 
 
+class ShoppingCardAddRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShoppingCard
+        fields = ('user',
+                  'recipe')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ShoppingCard.objects.all(),
+                fields=['recipe', 'user'],
+                message='Этот рецепт уже есть у вас в корзине'
+            )
+        ]

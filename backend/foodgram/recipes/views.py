@@ -3,7 +3,7 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.permissions import SAFE_METHODS, AllowAny
 from rest_framework.response import Response
-from .models import Recipe, Components, Ingredients, Tag, Favorite
+from .models import Recipe, Components, Ingredients, Tag, Favorite, ShoppingCard
 from .serializers import (RecipeListSerializer,
                           ComponentsListSerializer,
                           IngredientsSerializer,
@@ -11,7 +11,8 @@ from .serializers import (RecipeListSerializer,
                           ComponentsCreateSerializer,
                           TagsSerializer,
                           FavoriteCreateSerializer,
-                          FavoriteRecipeViewSerializer
+                          FavoriteRecipeViewSerializer,
+                          ShoppingCardAddRecipeSerializer
                           )
 
 
@@ -47,7 +48,8 @@ class FavoriteCreate(APIView):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user.id
         data = {'user': user, 'recipe': recipe.id}
-        serializer = FavoriteCreateSerializer(data=data, context={'request': request})
+        context = {'request': request}
+        serializer = FavoriteCreateSerializer(data=data, context=context)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         recipe_serializer = FavoriteRecipeViewSerializer(recipe)
@@ -63,6 +65,21 @@ class FavoriteCreate(APIView):
 
 class CardAddRecipeView(APIView):
     def get(self, request, recipe_id):
-        users = self.request.user
+        user = self.request.user.id
         recipe = get_object_or_404(Recipe, id=recipe_id)
-        pass
+        data = {'user': user, 'recipe':recipe.id}
+        context = {'request': request}
+        serializer = ShoppingCardAddRecipeSerializer(data=data, context=context)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        detail = {'detail':'рецепт успешно добавлен в корзину'}
+        recipe_serializer = FavoriteRecipeViewSerializer(recipe)
+        return Response(recipe_serializer.data, status.HTTP_201_CREATED)
+
+    def delete(self, request, recipe_id):
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        user = self.request.user
+        object = ShoppingCard.objects.get(user=user, recipe=recipe)
+        object.delete()
+        return Response(status.HTTP_204_NO_CONTENT)
+
