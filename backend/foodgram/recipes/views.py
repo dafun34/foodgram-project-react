@@ -1,7 +1,10 @@
+from django.db.models import Sum
+from prettytable import PrettyTable
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
-from rest_framework.permissions import SAFE_METHODS, AllowAny
+from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from .models import Recipe, Components, Ingredients, Tag, Favorite, ShoppingCard
 from .serializers import (RecipeListSerializer,
@@ -12,7 +15,7 @@ from .serializers import (RecipeListSerializer,
                           TagsSerializer,
                           FavoriteCreateSerializer,
                           FavoriteRecipeViewSerializer,
-                          ShoppingCardAddRecipeSerializer
+                          ShoppingCardAddRecipeSerializer, ShoppCard_TEST_Serializer
                           )
 
 
@@ -43,43 +46,77 @@ class ComponentsViewSet(viewsets.ModelViewSet):
             return ComponentsCreateSerializer
         return ComponentsListSerializer
 
-class FavoriteCreate(APIView):
+
+class FavoriteCreateDeleteView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
-        user = self.request.user.id
-        data = {'user': user, 'recipe': recipe.id}
-        context = {'request': request}
-        serializer = FavoriteCreateSerializer(data=data, context=context)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        user = self.request.user
+        if Favorite.objects.filter(user=user).exists():
+            fav = get_object_or_404(Favorite, user=user)
+            fav.recipe.add(recipe)
+        else:
+            fav = Favorite.objects.create(user=user)
+            fav.recipe.add(recipe)
         recipe_serializer = FavoriteRecipeViewSerializer(recipe)
         return Response(recipe_serializer.data, status.HTTP_201_CREATED)
 
     def delete(self, request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
-        favorite = get_object_or_404(Favorite, user=user, recipe=recipe)
-        favorite.delete()
+        favorite = Favorite.objects.get(user=user)
+        favorite.recipe.remove(recipe)
         return Response(status.HTTP_204_NO_CONTENT)
 
 
-class CardAddRecipeView(APIView):
+class CardAddDeleteRecipeView(APIView):
     def get(self, request, recipe_id):
-        user = self.request.user.id
         recipe = get_object_or_404(Recipe, id=recipe_id)
-        data = {'user': user, 'recipe':recipe.id}
-        context = {'request': request}
-        serializer = ShoppingCardAddRecipeSerializer(data=data, context=context)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        detail = {'detail':'рецепт успешно добавлен в корзину'}
+        user = self.request.user
+        if ShoppingCard.objects.filter(user=user).exists():
+            card = get_object_or_404(ShoppingCard, user=user)
+            card.recipe.add(recipe)
+        else:
+            card = ShoppingCard.objects.create(user=user)
+            card.recipe.add(recipe)
         recipe_serializer = FavoriteRecipeViewSerializer(recipe)
         return Response(recipe_serializer.data, status.HTTP_201_CREATED)
 
     def delete(self, request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
-        object = ShoppingCard.objects.get(user=user, recipe=recipe)
-        object.delete()
+        card = ShoppingCard.objects.get(user=user)
+        card.recipe.remove(recipe)
         return Response(status.HTTP_204_NO_CONTENT)
+
+
+class DownloadShoppingCartView(APIView):
+    def get(self, request):
+        table = PrettyTable()
+        table.field_names = ['Ингредиент', 'кол-во', 'ед-ца']
+        recipes_in_cart = Recipe.objects.filter(card_recipe__user=request.user).order_by(
+            'ingredients__ingredient__name').values(
+            'ingredients__ingredient__name',
+            'ingredients__ingredient__measurement_unit').annotate(
+            total=Sum('ingredients__amount'))
+        for item in recipes_in_cart:
+            table.add_row([item['ingredients__ingredient__name'],
+                           item['total'],
+                           item['ingredients__ingredient__measurement_unit']
+                           ]
+                          )
+        file_data = table
+        response = HttpResponse(file_data,
+                                content_type=
+                                'application/text charset=utf-8')
+        response[
+            'Content-Disposition'] = 'attachment; filename="ingredients.txt"'
+        return response
+
+        # for item in recipes_in_cart:
+        #     compo = item.ingredients.all()
+        #     for comp in compo:
+        #         buy_list.append(f'{comp.ingredient.name} - {comp.amount} {comp.ingredient.measurement_unit}')
+
 

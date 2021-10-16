@@ -36,10 +36,10 @@ class ComponentsAdmin(admin.ModelAdmin):
     list_display = ( 'ingredient', 'component_in_recipe', 'amount')
 
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe')
+    list_display = ('user', )
 
 class ShoppingCardAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'recipe')
+    list_display = ('id', 'user', )
 
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipe, RecipeAdmin)

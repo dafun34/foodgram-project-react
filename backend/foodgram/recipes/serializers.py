@@ -54,6 +54,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
     author = UserSerializer()
     tag = TagsSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -62,6 +63,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
                   'author',
                   'ingredients',
                   'is_favorited',
+                  'is_in_shopping_cart',
                   'name',
                   'image',
                   'text',
@@ -72,8 +74,22 @@ class RecipeListSerializer(serializers.ModelSerializer):
         author = obj.author.id
         request = self.context.get('request')
         user = request.user
-        result = Favorite.objects.filter(user=user,recipe=obj).exists()
+        result = False
+        if user.is_anonymous:
+            return result
+        else:
+            result = Favorite.objects.filter(user=user, recipe=obj).exists()
         return result
+
+    def get_is_in_shopping_cart(self, obj):
+        request = self.context.get('request')
+        user = request.user
+        result = False
+        if user.is_anonymous:
+            return result
+        else:
+            result = ShoppingCard.objects.filter(user=user, recipe=obj).exists()
+            return result
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -136,6 +152,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
 
 class FavoriteCreateSerializer(serializers.ModelSerializer):
+    recipe = RecipeListSerializer(many=True)
     class Meta:
         model = Favorite
         fields = ('user',
@@ -147,6 +164,9 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
                 message='Этот рецепт уже есть у вас в избранном'
             )
         ]
+
+
+
 
 
 class FavoriteRecipeViewSerializer(serializers.ModelSerializer):
@@ -170,3 +190,39 @@ class ShoppingCardAddRecipeSerializer(serializers.ModelSerializer):
                 message='Этот рецепт уже есть у вас в корзине'
             )
         ]
+
+class ShoppCard_TEST_Serializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    cooking_time = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ShoppingCard
+        fields = ('id',
+                  'name',
+                  'image',
+                  'cooking_time')
+
+    validators = [
+        UniqueTogetherValidator(
+            queryset=ShoppingCard.objects.all(),
+            fields=['recipe', 'user'],
+            message='Этот рецепт уже есть у вас в корзине'
+        )
+    ]
+
+
+
+    def get_id(self, obj):
+        return obj.id
+
+    def get_name(self, obj):
+        return obj.name
+
+    def get_image(self, obj):
+        return obj.image.url
+
+    def get_cooking_time(self, obj):
+        return obj.cooking_time
+

@@ -4,8 +4,8 @@ from .views import (RecipeViewSet,
                     ComponentsViewSet,
                     IngredientsViewSet,
                     TagsViewSet,
-                    FavoriteCreate,
-                    CardAddRecipeView)
+                    FavoriteCreateDeleteView,
+                    CardAddDeleteRecipeView, DownloadShoppingCartView)
 
 router = DefaultRouter()
 router.register('recipes', RecipeViewSet, basename='recipe')
@@ -15,7 +15,15 @@ router.register('ingredients', IngredientsViewSet, basename='ingredients')
 
 
 urlpatterns = [
-    path('recipes/<int:recipe_id>/favorite/', FavoriteCreate.as_view(), name='favorite_create'),
-    path('recipes/<int:recipe_id>/shopping_card/', CardAddRecipeView.as_view(), name='add_recipe_to_card'),
-    path('', include(router.urls))
+    path('recipes/download_shopping_cart/', DownloadShoppingCartView.as_view(),name='download_shopping_cart'),
+    path('', include(router.urls)),
+
+    path('recipes/<int:recipe_id>/favorite/',
+         FavoriteCreateDeleteView.as_view(),
+         name='favorite_create'),
+
+    path('recipes/<int:recipe_id>/shopping_card/',
+         CardAddDeleteRecipeView.as_view(),
+         name='add_recipe_to_card'),
+
 ]

@@ -74,24 +74,15 @@ class Favorite(models.Model):
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
                              related_name='favorite')
-    recipe = models.ForeignKey(Recipe,
-                               on_delete=models.CASCADE,
+    recipe = models.ManyToManyField(Recipe,
                                related_name='favorite')
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'recipe'],
-                                    name='unique_recipe_add')]
+
 
 class ShoppingCard(models.Model):
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
                              related_name='card_user')
-    recipe = models.ForeignKey(Recipe,
-                               on_delete=models.CASCADE,
+    recipe = models.ManyToManyField(Recipe,
                                related_name='card_recipe')
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'recipe'],
-                                    name='unique_card_add')]
