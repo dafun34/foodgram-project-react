@@ -3,7 +3,7 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.validators import UniqueTogetherValidator
-
+from django.core.exceptions import ObjectDoesNotExist
 from users.models import User
 from users.serializers import UserSerializer
 from .models import Recipe, Ingredients, Components, Tag, Favorite, ShoppingCard
@@ -16,7 +16,15 @@ class TagsSerializer(serializers.ModelSerializer):
         fields = ('id',
                   'name',
                   'color',
-                  'slug')
+                  'slug', )
+
+    def to_internal_value(self, data):
+        try:
+            tag = Tag.objects.get(id=data)
+        except ObjectDoesNotExist:
+            raise ValidationError('Wrong tag id')
+        return tag
+
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
@@ -51,11 +59,10 @@ class ComponentsCreateSerializer(serializers.ModelSerializer):
 
 class RecipeListSerializer(serializers.ModelSerializer):
     ingredients = ComponentsListSerializer(many=True)
-    author = UserSerializer()
     tag = TagsSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-
+    author = UserSerializer()
     class Meta:
         model = Recipe
         fields = ('id',
@@ -67,8 +74,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
                   'name',
                   'image',
                   'text',
-                  'cooking_time',
-                  )
+                  'cooking_time',)
 
     def get_is_favorited(self,obj):
         author = obj.author.id
@@ -92,11 +98,13 @@ class RecipeListSerializer(serializers.ModelSerializer):
             return result
 
 
-class RecipeCreateSerializer(serializers.ModelSerializer):
+class RecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
-    tag = serializers.SlugRelatedField(queryset=Tag.objects.all(),
-                                       slug_field='id', many=True)
+    tag = TagsSerializer(many=True)
     ingredients = ComponentsCreateSerializer(source='component', many=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+    author = UserSerializer(required=False)
 
     class Meta:
         model = Recipe
@@ -104,15 +112,41 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                   'tag',
                   'author',
                   'ingredients',
+                  'is_favorited',
+                  'is_in_shopping_cart',
                   'name',
                   'image',
                   'text',
-                  'cooking_time',)
+                  'cooking_time',
+                  )
+
+    def get_is_favorited(self, obj):
+        author = obj.author.id
+        request = self.context.get('request')
+        user = request.user
+        result = False
+        if user.is_anonymous:
+            return result
+        else:
+            result = Favorite.objects.filter(user=user, recipe=obj).exists()
+        return result
+
+    def get_is_in_shopping_cart(self, obj):
+        request = self.context.get('request')
+        user = request.user
+        result = False
+        if user.is_anonymous:
+            return result
+        else:
+            result = ShoppingCard.objects.filter(user=user, recipe=obj).exists()
+            return result
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('component')
         tags = validated_data.pop('tag')
-        recipe = Recipe.objects.create(**validated_data)
+        request = self.context.get('request')
+        user = request.user
+        recipe = Recipe.objects.create(author=user, **validated_data)
         for tag in tags:
             recipe.tag.add(tag)
         for ingredient in ingredients_data:
@@ -149,24 +183,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             instance.ingredients.add(component)
         instance.save()
         return instance
-
-
-class FavoriteCreateSerializer(serializers.ModelSerializer):
-    recipe = RecipeListSerializer(many=True)
-    class Meta:
-        model = Favorite
-        fields = ('user',
-                  'recipe')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Favorite.objects.all(),
-                fields=['recipe', 'user'],
-                message='Этот рецепт уже есть у вас в избранном'
-            )
-        ]
-
-
-
 
 
 class FavoriteRecipeViewSerializer(serializers.ModelSerializer):

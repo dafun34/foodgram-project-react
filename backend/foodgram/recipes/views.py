@@ -7,15 +7,14 @@ from rest_framework.views import APIView
 from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from .models import Recipe, Components, Ingredients, Tag, Favorite, ShoppingCard
-from .serializers import (RecipeListSerializer,
-                          ComponentsListSerializer,
+from .serializers import (ComponentsListSerializer,
                           IngredientsSerializer,
-                          RecipeCreateSerializer,
+                          RecipeSerializer,
                           ComponentsCreateSerializer,
                           TagsSerializer,
-                          FavoriteCreateSerializer,
+                          RecipeListSerializer,
                           FavoriteRecipeViewSerializer,
-                          ShoppingCardAddRecipeSerializer, ShoppCard_TEST_Serializer
+
                           )
 
 
@@ -31,11 +30,7 @@ class IngredientsViewSet(viewsets.ModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-
-    def get_serializer_class(self):
-        if self.action in ('create', 'update', 'partial_update'):
-            return RecipeCreateSerializer
-        return RecipeListSerializer
+    serializer_class = RecipeSerializer
 
 
 class ComponentsViewSet(viewsets.ModelViewSet):
@@ -95,12 +90,12 @@ class DownloadShoppingCartView(APIView):
     def get(self, request):
         table = PrettyTable()
         table.field_names = ['Ингредиент', 'кол-во', 'ед-ца']
-        recipes_in_cart = Recipe.objects.filter(card_recipe__user=request.user).order_by(
+        ingredients_in_cart = Recipe.objects.filter(card_recipe__user=request.user).order_by(
             'ingredients__ingredient__name').values(
             'ingredients__ingredient__name',
             'ingredients__ingredient__measurement_unit').annotate(
             total=Sum('ingredients__amount'))
-        for item in recipes_in_cart:
+        for item in ingredients_in_cart:
             table.add_row([item['ingredients__ingredient__name'],
                            item['total'],
                            item['ingredients__ingredient__measurement_unit']

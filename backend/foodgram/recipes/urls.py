@@ -22,7 +22,7 @@ urlpatterns = [
          FavoriteCreateDeleteView.as_view(),
          name='favorite_create'),
 
-    path('recipes/<int:recipe_id>/shopping_card/',
+    path('recipes/<int:recipe_id>/shopping_cart/',
          CardAddDeleteRecipeView.as_view(),
          name='add_recipe_to_card'),
 

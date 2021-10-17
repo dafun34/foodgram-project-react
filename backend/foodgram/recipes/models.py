@@ -2,6 +2,7 @@ from django.db import models
 from users.models import User
 
 
+
 class Tag(models.Model):
     name = models.CharField(max_length=200, blank=False)
     color = models.CharField(max_length=7, blank=True, null=True)

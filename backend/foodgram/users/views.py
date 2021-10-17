@@ -2,7 +2,8 @@ from django.shortcuts import render
 from rest_framework import generics, status, viewsets
 from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, \
     ListModelMixin
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated, \
+    IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from .serializers import UserSerializer, SubscriptionsListSerializer, UserCreateSerializer, CustomUserCreateSerializer
@@ -20,6 +21,7 @@ class SubscriptionsList(generics.ListAPIView):
 
 
 class SubscribeCreate(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, user_id):
         data = {'user': request.user.id, 'author': user_id}
         serializer = SubscriptionsListSerializer(data=data, context={'request': request})
