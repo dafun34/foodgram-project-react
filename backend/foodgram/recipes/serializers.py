@@ -22,9 +22,8 @@ class TagsSerializer(serializers.ModelSerializer):
         try:
             tag = Tag.objects.get(id=data)
         except ObjectDoesNotExist:
-            raise ValidationError('Wrong tag id')
+            raise ValidationError('Problem with tag id')
         return tag
-
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
@@ -55,47 +54,6 @@ class ComponentsCreateSerializer(serializers.ModelSerializer):
         model = Components
         fields = ('id',
                   'amount')
-
-
-class RecipeListSerializer(serializers.ModelSerializer):
-    ingredients = ComponentsListSerializer(many=True)
-    tag = TagsSerializer(many=True)
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
-    author = UserSerializer()
-    class Meta:
-        model = Recipe
-        fields = ('id',
-                  'tag',
-                  'author',
-                  'ingredients',
-                  'is_favorited',
-                  'is_in_shopping_cart',
-                  'name',
-                  'image',
-                  'text',
-                  'cooking_time',)
-
-    def get_is_favorited(self,obj):
-        author = obj.author.id
-        request = self.context.get('request')
-        user = request.user
-        result = False
-        if user.is_anonymous:
-            return result
-        else:
-            result = Favorite.objects.filter(user=user, recipe=obj).exists()
-        return result
-
-    def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        user = request.user
-        result = False
-        if user.is_anonymous:
-            return result
-        else:
-            result = ShoppingCard.objects.filter(user=user, recipe=obj).exists()
-            return result
 
 
 class RecipeSerializer(serializers.ModelSerializer):

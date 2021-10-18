@@ -12,9 +12,7 @@ from .serializers import (ComponentsListSerializer,
                           RecipeSerializer,
                           ComponentsCreateSerializer,
                           TagsSerializer,
-                          RecipeListSerializer,
                           FavoriteRecipeViewSerializer,
-
                           )
 
 
@@ -26,6 +24,7 @@ class TagsViewSet(viewsets.ModelViewSet):
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
+    http_method_names = ['get',]
 
 
 class RecipeViewSet(viewsets.ModelViewSet):

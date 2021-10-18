@@ -23,12 +23,25 @@ class component_inline(admin.TabularInline):
 
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (component_inline,)
-    list_display = ('id', 'name', 'cooking_time')
+    list_display = ('name',
+                    'author',
+                    'text',
+                    'cooking_time',
+                    'in_favorite')
+
+    readonly_fields = ('in_favorite',)
+    list_filter = ('name', 'author', 'tag')
+
+    def in_favorite(self, obj):
+        count = Favorite.objects.filter(recipe=obj).count()
+        return count
 
 
 class IngredientsAdmin(admin.ModelAdmin):
 
-    list_display = ('id', 'name', 'measurement_unit')
+    list_display = ('name',
+                    'measurement_unit')
+    list_filter = ('name',)
 
 
 class ComponentsAdmin(admin.ModelAdmin):
