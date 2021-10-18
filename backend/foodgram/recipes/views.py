@@ -1,35 +1,46 @@
+from django_filters.rest_framework import DjangoFilterBackend, AllValuesMultipleFilter
+from .filters import TagFilter
 from django.db.models import Sum
+from .pagination import RecipePagination
 from prettytable import PrettyTable
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
-from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from .models import Recipe, Components, Ingredients, Tag, Favorite, ShoppingCard
+from rest_framework import filters
 from .serializers import (ComponentsListSerializer,
                           IngredientsSerializer,
                           RecipeSerializer,
                           ComponentsCreateSerializer,
                           TagsSerializer,
-                          FavoriteRecipeViewSerializer,
+                          FavoriteRecipeViewSerializer, TagListCreateDelSerializer
                           )
 
 
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
-    serializer_class = TagsSerializer
+    serializer_class = TagListCreateDelSerializer
+    permission_classes = [IsAdminUser,]
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
-    http_method_names = ['get',]
+    permission_classes = [IsAdminUser,]
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    pagination_class = RecipePagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('tag',)
+    filterset_class = TagFilter
+
+
 
 
 class ComponentsViewSet(viewsets.ModelViewSet):
@@ -49,7 +60,9 @@ class FavoriteCreateDeleteView(APIView):
         user = self.request.user
         if Favorite.objects.filter(user=user).exists():
             fav = get_object_or_404(Favorite, user=user)
-            fav.recipe.add(recipe)
+            if Favorite.objects.filter(user=user, recipe=recipe).exists():
+                return Response(data='Этот рецепт уже есть в избранном')
+            else: fav.recipe.add(recipe)
         else:
             fav = Favorite.objects.create(user=user)
             fav.recipe.add(recipe)
@@ -65,12 +78,15 @@ class FavoriteCreateDeleteView(APIView):
 
 
 class CardAddDeleteRecipeView(APIView):
+    permission_classes = [IsAuthenticated,]
     def get(self, request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
         if ShoppingCard.objects.filter(user=user).exists():
             card = get_object_or_404(ShoppingCard, user=user)
-            card.recipe.add(recipe)
+            if ShoppingCard.objects.filter(user=user, recipe=recipe).exists():
+                return Response(data='Этот рецепт уже есть в корзине')
+            else: card.recipe.add(recipe)
         else:
             card = ShoppingCard.objects.create(user=user)
             card.recipe.add(recipe)
@@ -107,10 +123,3 @@ class DownloadShoppingCartView(APIView):
         response[
             'Content-Disposition'] = 'attachment; filename="ingredients.txt"'
         return response
-
-        # for item in recipes_in_cart:
-        #     compo = item.ingredients.all()
-        #     for comp in compo:
-        #         buy_list.append(f'{comp.ingredient.name} - {comp.amount} {comp.ingredient.measurement_unit}')
-
-

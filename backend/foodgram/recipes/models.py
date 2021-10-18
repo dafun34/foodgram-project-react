@@ -51,8 +51,12 @@ class Recipe(models.Model):
                                        help_text='Время приготовления в минутах'
     )
 
+
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ['-id']
 
 
 class Components(models.Model):

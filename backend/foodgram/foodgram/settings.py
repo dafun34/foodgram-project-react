@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'rest_framework.authtoken',
-
+    'django_filters',
     'django_extensions',
 ]
 
@@ -113,8 +113,11 @@ AUTH_PASSWORD_VALIDATORS = [
 DJOSER = {
     'PERMISSIONS': {
         'user_list': ['rest_framework.permissions.AllowAny'],
+        'current_user': ['rest_framework.permissions.IsAuthenticated'],
         'user': ['rest_framework.permissions.AllowAny'],
         'user_create': ['rest_framework.permissions.AllowAny'],
+        'user_delete': ['djoser.permissions.CurrentUserOrAdmin'],
+        'set_password': ['djoser.permissions.CurrentUserOrAdmin'],
 
     },
     'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
@@ -122,16 +125,18 @@ DJOSER = {
 
     'SEND_ACTIVATION_EMAIL': False,
     'SERIALIZERS': {
-        'user': 'users.serializers.UserSerializer',
+        'user': 'users.serializers.CustomUserSerializer',
         'user_create': 'users.serializers.CustomUserCreateSerializer',
-        'current_user': 'users.serializers.UserSerializer'
+        'current_user': 'users.serializers.UserSerializer',
+        'user_delete': 'djoser.serializers.UserDeleteSerializer',
+        'set_password': 'djoser.serializers.SetPasswordSerializer',
 
     },
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False
 }
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

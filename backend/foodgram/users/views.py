@@ -2,14 +2,26 @@ from django.shortcuts import render
 from rest_framework import generics, status, viewsets
 from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, \
     ListModelMixin
-from rest_framework.permissions import AllowAny, IsAuthenticated, \
-    IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (AllowAny,
+                                        IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly,
+                                        )
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-from .serializers import UserSerializer, SubscriptionsListSerializer, UserCreateSerializer, CustomUserCreateSerializer
+from .serializers import UserSerializer, SubscriptionsListSerializer, UserCreateSerializer, CustomUserCreateSerializer, SubscriptionsCustom
 from .models import User, Subscriptions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
+from rest_framework import filters
+
+class HomeUserListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated,]
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+    def get_queryset(self):
+        home = User.objects.filter(id=self.request.user.id)
+        return home
 
 
 class SubscriptionsList(generics.ListAPIView):
@@ -38,9 +50,3 @@ class SubscribeCreate(APIView):
                                          author=author)
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
-
-
-

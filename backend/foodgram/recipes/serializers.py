@@ -9,6 +9,13 @@ from users.serializers import UserSerializer
 from .models import Recipe, Ingredients, Components, Tag, Favorite, ShoppingCard
 from drf_extra_fields.fields import Base64ImageField
 
+class TagListCreateDelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('id',
+                  'name',
+                  'color',
+                  'slug')
 
 class TagsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,6 +45,7 @@ class ComponentsListSerializer(serializers.ModelSerializer):
     ingredient = serializers.StringRelatedField()
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit')
+    id = serializers.ReadOnlyField(source='ingredient.id')
 
     class Meta:
         model = Components
@@ -59,7 +67,7 @@ class ComponentsCreateSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     tag = TagsSerializer(many=True)
-    ingredients = ComponentsCreateSerializer(source='component', many=True)
+    ingredients = ComponentsListSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     author = UserSerializer(required=False)
@@ -164,39 +172,4 @@ class ShoppingCardAddRecipeSerializer(serializers.ModelSerializer):
                 message='Этот рецепт уже есть у вас в корзине'
             )
         ]
-
-class ShoppCard_TEST_Serializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField()
-    name = serializers.SerializerMethodField()
-    image = serializers.SerializerMethodField()
-    cooking_time = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ShoppingCard
-        fields = ('id',
-                  'name',
-                  'image',
-                  'cooking_time')
-
-    validators = [
-        UniqueTogetherValidator(
-            queryset=ShoppingCard.objects.all(),
-            fields=['recipe', 'user'],
-            message='Этот рецепт уже есть у вас в корзине'
-        )
-    ]
-
-
-
-    def get_id(self, obj):
-        return obj.id
-
-    def get_name(self, obj):
-        return obj.name
-
-    def get_image(self, obj):
-        return obj.image.url
-
-    def get_cooking_time(self, obj):
-        return obj.cooking_time
 
