@@ -2,7 +2,6 @@ from django.db import models
 from users.models import User
 
 
-
 class Tag(models.Model):
     name = models.CharField(max_length=200, blank=False)
     color = models.CharField(max_length=7, blank=True, null=True)
@@ -48,9 +47,9 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
                                        verbose_name='Время приготовления',
                                        blank=False,
-                                       help_text='Время приготовления в минутах'
+                                       help_text=(
+                                           'Время приготовления в минутах')
     )
-
 
     def __str__(self):
         return self.name
@@ -67,7 +66,9 @@ class Components(models.Model):
     component_in_recipe = models.ForeignKey(Recipe,
                                             on_delete=models.CASCADE,
                                             blank=True,
-                                            null=True, related_name='component')
+                                            null=True,
+                                            related_name='component')
+
     def __str__(self):
         ingredient = self.ingredient
         measurement_unit = self.ingredient.measurement_unit
@@ -79,15 +80,11 @@ class Favorite(models.Model):
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
                              related_name='favorite')
-    recipe = models.ManyToManyField(Recipe,
-                               related_name='favorite')
-
+    recipe = models.ManyToManyField(Recipe, related_name='favorite')
 
 
 class ShoppingCard(models.Model):
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
                              related_name='card_user')
-    recipe = models.ManyToManyField(Recipe,
-                               related_name='card_recipe')
-
+    recipe = models.ManyToManyField(Recipe, related_name='card_recipe')

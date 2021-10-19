@@ -1,13 +1,15 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import serializers, status
-from rest_framework.response import Response
-from rest_framework.request import Request
+from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from django.core.exceptions import ObjectDoesNotExist
-from users.models import User
 from users.serializers import UserSerializer
-from .models import Recipe, Ingredients, Components, Tag, Favorite, ShoppingCard
+from .models import (Recipe,
+                     Ingredients,
+                     Components,
+                     Tag,
+                     Favorite,
+                     ShoppingCard)
 from drf_extra_fields.fields import Base64ImageField
+
 
 class TagListCreateDelSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +18,7 @@ class TagListCreateDelSerializer(serializers.ModelSerializer):
                   'name',
                   'color',
                   'slug')
+
 
 class TagsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -87,7 +90,6 @@ class RecipeListSerializer(serializers.ModelSerializer):
                   )
 
     def get_is_favorited(self, obj):
-        author = obj.author.id
         request = self.context.get('request')
         user = request.user
         result = False
@@ -104,7 +106,9 @@ class RecipeListSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return result
         else:
-            result = ShoppingCard.objects.filter(user=user, recipe=obj).exists()
+            result = ShoppingCard.objects.filter(
+                user=user, recipe=obj).exists()
+
             return result
 
 
@@ -131,7 +135,6 @@ class RecipeSerializer(serializers.ModelSerializer):
                   )
 
     def get_is_favorited(self, obj):
-        author = obj.author.id
         request = self.context.get('request')
         user = request.user
         result = False
@@ -148,7 +151,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return result
         else:
-            result = ShoppingCard.objects.filter(user=user, recipe=obj).exists()
+            result = ShoppingCard.objects.filter(
+                user=user, recipe=obj).exists()
+
             return result
 
     def create(self, validated_data):
