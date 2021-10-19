@@ -15,7 +15,10 @@ router.register('ingredients', IngredientsViewSet, basename='ingredients')
 
 
 urlpatterns = [
-    path('recipes/download_shopping_cart/', DownloadShoppingCartView.as_view(),name='download_shopping_cart'),
+    path('recipes/download_shopping_cart/',
+         DownloadShoppingCartView.as_view(),
+         name='download_shopping_cart'),
+
     path('', include(router.urls)),
 
     path('recipes/<int:recipe_id>/favorite/',
@@ -25,5 +28,4 @@ urlpatterns = [
     path('recipes/<int:recipe_id>/shopping_cart/',
          CardAddDeleteRecipeView.as_view(),
          name='add_recipe_to_card'),
-
 ]

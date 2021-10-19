@@ -1,13 +1,9 @@
-from django.shortcuts import get_object_or_404
-
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from recipes.models import Favorite, Recipe
+from recipes.models import Recipe
 from users.models import User, Subscriptions
-
-from djoser.serializers import UserCreateSerializer, UserSerializer as djoserUser
-from rest_framework import validators
-from rest_framework.response import Response
+from djoser.serializers import (UserCreateSerializer,
+                                UserSerializer as djoserUser)
 
 
 class FavoriteRecipeViewSerializer(serializers.ModelSerializer):
@@ -43,50 +39,54 @@ class UserSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return result
         else:
-            result = Subscriptions.objects.filter(user=obj, author=user).exists()
+            result = Subscriptions.objects.filter(user=obj,
+                                                  author=user).exists()
         return result
 
-
     def get_recipes(self, obj):
-         request = self.context.get('request')
-         recipes_limit = request.query_params.get('recipes_limit')
-         context = {'request': request}
-         if recipes_limit is not None:
-             recipes = obj.recipe.all()[:int(recipes_limit)]
-         else: recipes = obj.recipe.all()
-         serializer = FavoriteRecipeViewSerializer(data=recipes, many=True, context=context)
-         serializer.is_valid()
-         return serializer.data
+        request = self.context.get('request')
+        recipes_limit = request.query_params.get('recipes_limit')
+        context = {'request': request}
+        if recipes_limit is not None:
+            recipes = obj.recipe.all()[:int(recipes_limit)]
+        else:
+            recipes = obj.recipe.all()
+        serializer = FavoriteRecipeViewSerializer(data=recipes,
+                                                  many=True,
+                                                  context=context)
+        serializer.is_valid()
+        return serializer.data
 
-    def get_recipes_count(self,obj):
+    def get_recipes_count(self, obj):
         count = 0
         count += obj.recipe.count()
         return count
 
 
 class SubscriptionsCustom(serializers.ModelSerializer):
-
     recipes_count = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('username', 'recipes_count')
 
-    def get_recipes_count(self,obj):
+    def get_recipes_count(self):
         count = 0
         instance = self.instance
         for item in instance:
             count += item.recipe.count()
         return count
 
+
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
-
         model = User
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
 
 
 class CustomUserSerializer(djoserUser):
     is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('email',
@@ -103,7 +103,8 @@ class CustomUserSerializer(djoserUser):
         if user.is_anonymous:
             return result
         else:
-            result = Subscriptions.objects.filter(user=obj, author=user).exists()
+            result = Subscriptions.objects.filter(user=obj,
+                                                  author=user).exists()
         return result
 
 

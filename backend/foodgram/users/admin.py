@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from .models import User, Subscriptions
 
 
@@ -14,7 +13,3 @@ class SubscriptionsAdmin(admin.ModelAdmin):
 
 admin.site.register(Subscriptions, SubscriptionsAdmin)
 admin.site.register(User, UserAdmin)
-
-
-
-
