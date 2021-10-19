@@ -1,21 +1,16 @@
-from django.shortcuts import render
-from rest_framework import generics, status, viewsets
-from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, \
-    ListModelMixin
-from rest_framework.permissions import (AllowAny,
-                                        IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly,
-                                        )
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet
-from .serializers import UserSerializer, SubscriptionsListSerializer, UserCreateSerializer, CustomUserCreateSerializer, SubscriptionsCustom
+from .serializers import (UserSerializer,
+                          SubscriptionsListSerializer)
+
 from .models import User, Subscriptions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
-from rest_framework import filters
+
 
 class HomeUserListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated, ]
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
@@ -27,6 +22,7 @@ class HomeUserListView(generics.ListAPIView):
 class SubscriptionsList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
     def get_queryset(self):
         user = self.request.user
         return User.objects.filter(following__user=user)
@@ -34,9 +30,11 @@ class SubscriptionsList(generics.ListAPIView):
 
 class SubscribeCreate(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, user_id):
         data = {'user': request.user.id, 'author': user_id}
-        serializer = SubscriptionsListSerializer(data=data, context={'request': request})
+        serializer = SubscriptionsListSerializer(data=data,
+                                                 context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         author = get_object_or_404(User, id=user_id)
