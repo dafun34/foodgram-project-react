@@ -48,7 +48,7 @@ class ComponentsListSerializer(serializers.ModelSerializer):
     name = serializers.StringRelatedField()
     measurement_unit = serializers.ReadOnlyField(
         source='name.measurement_unit')
-    id = serializers.ReadOnlyField(source='name.id')
+    #id = serializers.ReadOnlyField(source='name.id')
 
     class Meta:
         model = Components
@@ -57,6 +57,13 @@ class ComponentsListSerializer(serializers.ModelSerializer):
                   'amount',
                   'measurement_unit')
         # сделать как в ТЭГах
+
+    def to_internal_value(self, data):
+        try:
+            id = Ingredients.objects.get(id=data)
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError('Problem with tags id')
+        return id
 
 
 class ComponentsCreateSerializer(serializers.ModelSerializer):
@@ -68,55 +75,55 @@ class ComponentsCreateSerializer(serializers.ModelSerializer):
                   'amount')
 
 
-# class RecipeListSerializer(serializers.ModelSerializer):
-#     image = Base64ImageField()
-#     tags = TagsSerializer(many=True)
-#     ingredients = ComponentsListSerializer(source='component', many=True)
-#     is_favorited = serializers.SerializerMethodField()
-#     is_in_shopping_cart = serializers.SerializerMethodField()
-#     author = UserSerializer(required=False)
-#
-#     class Meta:
-#         model = Recipe
-#         fields = ('id',
-#                   'tags',
-#                   'author',
-#                   'ingredients',
-#                   'is_favorited',
-#                   'is_in_shopping_cart',
-#                   'name',
-#                   'image',
-#                   'text',
-#                   'cooking_time',
-#                   )
-#
-#     def get_is_favorited(self, obj):
-#         request = self.context.get('request')
-#         user = request.user
-#         result = False
-#         if user.is_anonymous:
-#             return result
-#         else:
-#             result = Favorite.objects.filter(user=user, recipe=obj).exists()
-#         return result
-#
-#     def get_is_in_shopping_cart(self, obj):
-#         request = self.context.get('request')
-#         user = request.user
-#         result = False
-#         if user.is_anonymous:
-#             return result
-#         else:
-#             result = ShoppingCard.objects.filter(
-#                 user=user, recipe=obj).exists()
-#
-#             return result
+class RecipeListSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+    tags = TagsSerializer(many=True)
+    ingredients = ComponentsListSerializer(source='component', many=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+    author = UserSerializer(required=False)
+
+    class Meta:
+        model = Recipe
+        fields = ('id',
+                  'tags',
+                  'author',
+                  'ingredients',
+                  'is_favorited',
+                  'is_in_shopping_cart',
+                  'name',
+                  'image',
+                  'text',
+                  'cooking_time',
+                  )
+
+    def get_is_favorited(self, obj):
+        request = self.context.get('request')
+        user = request.user
+        result = False
+        if user.is_anonymous:
+            return result
+        else:
+            result = Favorite.objects.filter(user=user, recipe=obj).exists()
+        return result
+
+    def get_is_in_shopping_cart(self, obj):
+        request = self.context.get('request')
+        user = request.user
+        result = False
+        if user.is_anonymous:
+            return result
+        else:
+            result = ShoppingCard.objects.filter(
+                user=user, recipe=obj).exists()
+
+            return result
 
 
 class RecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     tags = TagsSerializer(many=True)
-    ingredients = ComponentsCreateSerializer(source='component', many=True)
+    ingredients = ComponentsListSerializer(source='component', many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     author = UserSerializer(required=False)

@@ -9,7 +9,7 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated,
-                                        IsAdminUser)
+                                        IsAdminUser, AllowAny)
 from rest_framework.response import Response
 from .models import (Recipe,
                      Components,
@@ -46,7 +46,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = RecipePagination
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrAdmin]
+    permission_classes = [AllowAny, ]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TagFilter
 
