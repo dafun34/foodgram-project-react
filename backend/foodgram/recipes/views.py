@@ -24,7 +24,7 @@ from .serializers import (ComponentsListSerializer,
                           ComponentsCreateSerializer,
                           FavoriteRecipeViewSerializer,
                           TagListCreateDelSerializer,
-                          RecipeListSerializer
+                          # RecipeListSerializer
                           )
 
 
@@ -50,10 +50,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TagFilter
 
-    def get_serializer_class(self):
-        if self.action in ('create', 'update', 'partial_update'):
-            return RecipeSerializer
-        return RecipeListSerializer
+    # def get_serializer_class(self):
+    #     if self.action in ('create', 'update', 'partial_update'):
+    #         return RecipeSerializer
+    #     return RecipeListSerializer
 
 
 class ComponentsViewSet(viewsets.ModelViewSet):
