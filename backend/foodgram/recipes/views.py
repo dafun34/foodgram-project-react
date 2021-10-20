@@ -31,14 +31,15 @@ from .serializers import (ComponentsListSerializer,
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagListCreateDelSerializer
-    permission_classes = [IsAdminUser, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     pagination_class = None
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
-    permission_classes = [IsAdminUser, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):

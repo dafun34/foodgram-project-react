@@ -20,6 +20,6 @@ class TagFilter(filters.FilterSet):
     def get_shopping_cart(self, queryset, name, value):
         if value:
             return Recipe.objects.filter(
-                shopping_cart__user=self.request.user
+                card_recipe__user=self.request.user
             )
         return Recipe.objects.all()
