@@ -32,6 +32,7 @@ class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagListCreateDelSerializer
     permission_classes = [IsAdminUser, ]
+    pagination_class = None
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
