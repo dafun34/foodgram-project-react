@@ -5,9 +5,9 @@ from .models import Recipe
 
 class TagFilter(filters.FilterSet):
 
-    tag = filters.AllValuesMultipleFilter(field_name='tag__slug')
+    tag = filters.AllValuesMultipleFilter(field_name='tags__slug')
     author = filters.CharFilter(field_name='author__username')
 
     class Meta:
         model = Recipe
-        fields = ('tag', 'author')
+        fields = ('tags', 'author')

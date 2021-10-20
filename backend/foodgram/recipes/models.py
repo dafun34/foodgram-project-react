@@ -32,7 +32,7 @@ class Recipe(models.Model):
                             verbose_name='Название'
                             )
 
-    tag = models.ManyToManyField(Tag, related_name='recipe')
+    tags = models.ManyToManyField(Tag, related_name='recipe')
 
     image = models.ImageField(upload_to='recipes/',
                               blank=False
@@ -70,7 +70,7 @@ class Components(models.Model):
                                             related_name='component')
 
     def __str__(self):
-        ingredient = self.ingredient
+        ingredient = self.ingredient.name
         measurement_unit = self.ingredient.measurement_unit
         amount = self.amount
         return f'{ingredient}: {amount} {measurement_unit}'

@@ -32,7 +32,7 @@ class TagsSerializer(serializers.ModelSerializer):
         try:
             tag = Tag.objects.get(id=data)
         except ObjectDoesNotExist:
-            raise ValidationError('Problem with tag id')
+            raise serializers.ValidationError('Problem with tags id')
         return tag
 
 
@@ -69,7 +69,7 @@ class ComponentsCreateSerializer(serializers.ModelSerializer):
 
 class RecipeListSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
-    tag = TagsSerializer(many=True)
+    tags = TagsSerializer(many=True)
     ingredients = ComponentsListSerializer(source='component', many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -78,7 +78,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id',
-                  'tag',
+                  'tags',
                   'author',
                   'ingredients',
                   'is_favorited',
@@ -114,7 +114,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
-    tag = TagsSerializer(many=True)
+    tags = TagsSerializer(many=True)
     ingredients = ComponentsCreateSerializer(source='component', many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -123,7 +123,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id',
-                  'tag',
+                  'tags',
                   'author',
                   'ingredients',
                   'is_favorited',
@@ -158,12 +158,12 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('component')
-        tags = validated_data.pop('tag')
+        tags = validated_data.pop('tags')
         request = self.context.get('request')
         user = request.user
         recipe = Recipe.objects.create(author=user, **validated_data)
         for tag in tags:
-            recipe.tag.add(tag)
+            recipe.tags.add(tag)
         for ingredient in ingredients_data:
             some_compo = dict(ingredient)
             ingredient = some_compo['ingredient']
@@ -177,13 +177,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('component')
-        tags = validated_data.pop('tag')
+        tags = validated_data.pop('tags')
         for item in validated_data:
             if Recipe._meta.get_field(item):
                 setattr(instance, item, validated_data[item])
-        instance.tag.clear()
+        instance.tags.clear()
         for tag in tags:
-            instance.tag.add(tag)
+            instance.tags.add(tag)
 
         Components.objects.filter(component_in_recipe=instance).delete()
         for ingredient in ingredients_data:

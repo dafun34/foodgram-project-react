@@ -29,6 +29,9 @@ class User(AbstractUser):
                                  verbose_name='Фамилия'
                                  )
 
+    def __str__(self):
+        return self.username
+
 
 class Subscriptions(models.Model):
     user = models.ForeignKey(User,

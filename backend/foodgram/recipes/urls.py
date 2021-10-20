@@ -9,7 +9,7 @@ from .views import (RecipeViewSet,
 
 router = DefaultRouter()
 router.register('recipes', RecipeViewSet, basename='recipe')
-router.register('tags', TagsViewSet, basename='tag')
+router.register('tags', TagsViewSet, basename='tags')
 router.register('components', ComponentsViewSet, basename='components')
 router.register('ingredients', IngredientsViewSet, basename='ingredients')
 
