@@ -168,7 +168,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             some_compo = dict(ingredient)
             ingredient = some_compo['name']
             component = Components.objects.create(
-                ingredient=Ingredients.objects.get(pk=ingredient['id']),
+                name=Ingredients.objects.get(pk=ingredient['id']),
                 amount=some_compo['amount'],
                 component_in_recipe=recipe
             )
