@@ -45,7 +45,7 @@ class IngredientsAdmin(admin.ModelAdmin):
 
 class ComponentsAdmin(admin.ModelAdmin):
 
-    list_display = ('ingredient', 'component_in_recipe', 'amount')
+    list_display = ('name', 'component_in_recipe', 'amount')
 
 
 class FavoriteAdmin(admin.ModelAdmin):

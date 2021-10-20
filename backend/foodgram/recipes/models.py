@@ -60,9 +60,9 @@ class Recipe(models.Model):
 
 class Components(models.Model):
     amount = models.PositiveSmallIntegerField()
-    ingredient = models.ForeignKey(Ingredients,
-                                   on_delete=models.CASCADE,
-                                   related_name='ingredient')
+    name = models.ForeignKey(Ingredients,
+                             on_delete=models.CASCADE,
+                             related_name='ingredient')
     component_in_recipe = models.ForeignKey(Recipe,
                                             on_delete=models.CASCADE,
                                             blank=True,
@@ -70,8 +70,8 @@ class Components(models.Model):
                                             related_name='component')
 
     def __str__(self):
-        ingredient = self.ingredient.name
-        measurement_unit = self.ingredient.measurement_unit
+        ingredient = self.name.name
+        measurement_unit = self.name.measurement_unit
         amount = self.amount
         return f'{ingredient}: {amount} {measurement_unit}'
 

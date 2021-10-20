@@ -45,21 +45,21 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
 
 class ComponentsListSerializer(serializers.ModelSerializer):
-    ingredient = serializers.StringRelatedField()
+    name = serializers.StringRelatedField()
     measurement_unit = serializers.ReadOnlyField(
-        source='ingredient.measurement_unit')
-    id = serializers.ReadOnlyField(source='ingredient.id')
+        source='name.measurement_unit')
+    id = serializers.ReadOnlyField(source='name.id')
 
     class Meta:
         model = Components
         fields = ('id',
-                  'ingredient',
+                  'name',
                   'amount',
                   'measurement_unit')
 
 
 class ComponentsCreateSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source='ingredient.id')
+    id = serializers.IntegerField(source='name.id')
 
     class Meta:
         model = Components
@@ -166,7 +166,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             recipe.tags.add(tag)
         for ingredient in ingredients_data:
             some_compo = dict(ingredient)
-            ingredient = some_compo['ingredient']
+            ingredient = some_compo['name']
             component = Components.objects.create(
                 ingredient=Ingredients.objects.get(pk=ingredient['id']),
                 amount=some_compo['amount'],
@@ -188,7 +188,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         Components.objects.filter(component_in_recipe=instance).delete()
         for ingredient in ingredients_data:
             some_compo = dict(ingredient)
-            ingredient = some_compo['ingredient']
+            ingredient = some_compo['name']
             amount = some_compo['amount']
             component = Components.objects.create(
                 ingredient=Ingredients.objects.get(pk=ingredient['id']),
