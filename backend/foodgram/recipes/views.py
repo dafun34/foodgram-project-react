@@ -123,14 +123,14 @@ class DownloadShoppingCartView(APIView):
         table.field_names = ['Ингредиент', 'кол-во', 'ед-ца']
         ingredients_in_cart = Recipe.objects.filter(
             card_recipe__user=request.user).order_by(
-            'ingredients__ingredient__name').values(
-            'ingredients__ingredient__name',
-            'ingredients__ingredient__measurement_unit').annotate(
+            'ingredients__name__name').values(
+            'ingredients__name__name',
+            'ingredients__name__measurement_unit').annotate(
             total=Sum('ingredients__amount'))
         for item in ingredients_in_cart:
-            table.add_row([item['ingredients__ingredient__name'],
+            table.add_row([item['ingredients__name__name'],
                            item['total'],
-                           item['ingredients__ingredient__measurement_unit']
+                           item['ingredients__name__measurement_unit']
                            ]
                           )
         file_data = table
