@@ -17,7 +17,7 @@ from .models import (Recipe,
                      Tag,
                      Favorite,
                      ShoppingCard)
-from .permissions import IsAuthorOrAdmin
+from .permissions import IsAuthorOrAdminOrReadOnly
 from .serializers import (ComponentsSerializer,
                           IngredientsSerializer,
                           RecipeSerializer,
@@ -38,7 +38,7 @@ class TagsViewSet(viewsets.ModelViewSet):
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly,]
     pagination_class = None
 
 
@@ -46,7 +46,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = RecipePagination
-    permission_classes = [AllowAny, ]
+    permission_classes = [AllowAny]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TagFilter
 

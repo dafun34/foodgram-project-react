@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from django.core.exceptions import ObjectDoesNotExist
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer, CustomUserCreateSerializer, CustomUserSerializer
 from .models import (Recipe,
                      Ingredients,
                      Components,
@@ -127,7 +127,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = ComponentsSerializer(source='component', many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    author = UserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
 
     class Meta:
         model = Recipe
