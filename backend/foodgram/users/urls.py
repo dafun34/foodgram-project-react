@@ -5,12 +5,12 @@ from .views import SubscriptionsList, SubscribeCreate, HomeUserListView
 router = DefaultRouter()
 
 urlpatterns = [
-
+    path('users/subscriptions/', SubscriptionsList.as_view()),
     path('', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
     path('users/<int:user_id>/subscribe/', SubscribeCreate.as_view(),
          name='subscribe'),
-    path('users/subscriptions/', SubscriptionsList.as_view()),
+
     path('users/me/', HomeUserListView.as_view()),
 
 
