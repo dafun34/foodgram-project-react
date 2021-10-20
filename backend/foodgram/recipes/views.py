@@ -18,7 +18,7 @@ from .models import (Recipe,
                      Favorite,
                      ShoppingCard)
 from .permissions import IsAuthorOrAdmin
-from .serializers import (ComponentsListSerializer,
+from .serializers import (ComponentsSerializer,
                           IngredientsSerializer,
                           RecipeSerializer,
                           ComponentsCreateSerializer,
@@ -62,7 +62,7 @@ class ComponentsViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('create', 'update', 'partial_update'):
             return ComponentsCreateSerializer
-        return ComponentsListSerializer
+        return ComponentsSerializer
 
 
 class FavoriteCreateDeleteView(APIView):
