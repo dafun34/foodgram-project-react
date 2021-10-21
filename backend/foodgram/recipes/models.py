@@ -29,7 +29,7 @@ class Recipe(models.Model):
 
     name = models.CharField(max_length=200,
                             blank=False,
-                            verbose_name='Название'
+                            verbose_name='Название рецепта'
                             )
 
     tags = models.ManyToManyField(Tag, related_name='recipe')

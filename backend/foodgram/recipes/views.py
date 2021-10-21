@@ -45,7 +45,6 @@ class IngredientsViewSet(viewsets.ModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    pagination_class = RecipePagination
     permission_classes = [IsAuthorOrAdminOrReadOnly,]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TagFilter
@@ -67,7 +66,7 @@ class ComponentsViewSet(viewsets.ModelViewSet):
 
 class FavoriteCreateDeleteView(APIView):
     permission_classes = [IsAuthenticated, ]
-
+    pagination_class = None
     def get(self, request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
@@ -93,7 +92,6 @@ class FavoriteCreateDeleteView(APIView):
 
 class CardAddDeleteRecipeView(APIView):
     permission_classes = [IsAuthenticated, ]
-
     def get(self, request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
@@ -134,8 +132,9 @@ class DownloadShoppingCartView(APIView):
                            ]
                           )
         file_data = table
-        response = HttpResponse(file_data,
-                                content_type='application/text charset=utf-8')
+        filename = 'ingredients.txt'
+        response = HttpResponse(file_data, content_type='text/plain')
         response[
-            'Content-Disposition'] = 'attachment; filename="ingredients.txt"'
+            'Content-Disposition'] = ('attachment; '
+                                      'filename={0}'.format(filename))
         return response
