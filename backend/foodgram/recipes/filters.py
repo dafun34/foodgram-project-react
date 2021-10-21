@@ -14,12 +14,12 @@ class TagFilter(filters.FilterSet):
 
     def get_favorited(self, queryset, name, value):
         if value:
-            return Recipe.objects.filter(favorite__user=self.request.user)
+            return queryset.filter(favorite__user=self.request.user)
         return Recipe.objects.all()
 
     def get_shopping_cart(self, queryset, name, value):
         if value:
-            return Recipe.objects.filter(
+            return queryset.filter(
                 card_recipe__user=self.request.user
             )
         return Recipe.objects.all()
