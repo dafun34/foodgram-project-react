@@ -49,11 +49,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TagFilter
 
-    # def get_serializer_class(self):
-    #     if self.action in ('create', 'update', 'partial_update'):
-    #         return RecipeSerializer
-    #     return RecipeListSerializer
-
 
 class ComponentsViewSet(viewsets.ModelViewSet):
     queryset = Components.objects.all()

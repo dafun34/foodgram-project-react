@@ -53,7 +53,7 @@ class FavoriteAdmin(admin.ModelAdmin):
 
 
 class ShoppingCardAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', )
+    list_display = ('user', )
 
 
 admin.site.register(Tag, TagAdmin)
