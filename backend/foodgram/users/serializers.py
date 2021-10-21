@@ -100,11 +100,12 @@ class CustomUserSerializer(djoserUser):
         request = self.context.get('request')
         user = request.user
         result = False
+        test = obj
         if user.is_anonymous:
             return result
         else:
             result = Subscriptions.objects.filter(user=user,
-                                                  author=obj.recipe.author).exists()
+                                                  author=obj).exists()
         return result
 
 
