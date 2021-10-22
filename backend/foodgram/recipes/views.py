@@ -76,10 +76,9 @@ class FavoriteCreateDeleteView(APIView):
         return Response(recipe_serializer.data, status.HTTP_201_CREATED)
 
     def delete(self, request, recipe_id):
-        recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
-        favorite = Favorite.objects.get(user=user)
-        favorite.recipe.remove(recipe)
+        favorite = get_object_or_404(Favorite, user=user)
+        favorite.recipe.remove(recipe_id)
         return Response(status.HTTP_204_NO_CONTENT)
 
 
@@ -99,10 +98,9 @@ class CardAddDeleteRecipeView(APIView):
         return Response(recipe_serializer.data, status.HTTP_201_CREATED)
 
     def delete(self, request, recipe_id):
-        recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
-        card = ShoppingCard.objects.get(user=user)
-        card.recipe.remove(recipe)
+        card = get_object_or_404(ShoppingCard, user=user)
+        card.recipe.remove(recipe_id)
         return Response(status.HTTP_204_NO_CONTENT)
 
 
