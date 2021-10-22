@@ -1,11 +1,7 @@
 from django.contrib import admin
-from .models import (ShoppingCard,
-                     Recipe,
-                     Ingredients,
-                     Components,
-                     Tag,
-                     Favorite
-                     )
+
+from .models import (Components, Favorite, Ingredients, Recipe, ShoppingCard,
+                     Tag)
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -15,13 +11,7 @@ class TagAdmin(admin.ModelAdmin):
                     'slug')
 
 
-class component_inline(admin.TabularInline):
-    model = Components
-    extra = 1
-
-
 class RecipeAdmin(admin.ModelAdmin):
-    inlines = (component_inline,)
     list_display = ('name',
                     'author',
                     'text',
@@ -32,8 +22,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('name', 'author', 'tags')
 
     def in_favorite(self, obj):
-        count = Favorite.objects.filter(recipe=obj).count()
-        return count
+        return Favorite.objects.filter(recipe=obj).count()
 
 
 class IngredientsAdmin(admin.ModelAdmin):

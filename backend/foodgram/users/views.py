@@ -1,12 +1,12 @@
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from .serializers import (UserSerializer, CustomUserSerializer,
-                          SubscriptionsListSerializer)
-
-from .models import User, Subscriptions
-from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import Subscriptions, User
+from .serializers import (CustomUserSerializer, SubscriptionsListSerializer,
+                          UserSerializer)
 
 
 class HomeUserListView(generics.ListAPIView):
@@ -15,8 +15,7 @@ class HomeUserListView(generics.ListAPIView):
     queryset = User.objects.all()
 
     def get_queryset(self):
-        home = User.objects.filter(id=self.request.user.id)
-        return home
+        return User.objects.filter(id=self.request.user.id)
 
 
 class SubscriptionsList(generics.ListAPIView):
@@ -38,7 +37,8 @@ class SubscribeCreate(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         author = get_object_or_404(User, id=user_id)
-        serializer_user = CustomUserSerializer(author, context={'request': request})
+        serializer_user = CustomUserSerializer(author,
+                                               context={'request': request})
         return Response(serializer_user.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, user_id):

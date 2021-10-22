@@ -1,18 +1,12 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from django.core.exceptions import ObjectDoesNotExist
-from users.serializers import (UserSerializer,
-                               CustomUserCreateSerializer,
-                               CustomUserSerializer
-                               )
-from .models import (Recipe,
-                     Ingredients,
-                     Components,
-                     Tag,
-                     Favorite,
-                     ShoppingCard)
-from drf_extra_fields.fields import Base64ImageField
+from users.serializers import CustomUserSerializer
+
+from .models import (Components, Favorite, Ingredients, Recipe, ShoppingCard,
+                     Tag)
 
 
 class TagListCreateDelSerializer(serializers.ModelSerializer):
@@ -53,7 +47,6 @@ class ComponentsSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source='name.name')
     measurement_unit = serializers.ReadOnlyField(
         source='name.measurement_unit')
-
 
     class Meta:
         model = Components
@@ -97,24 +90,17 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         request = self.context.get('request')
         user = request.user
-        result = False
         if user.is_anonymous:
-            return result
-        else:
-            result = Favorite.objects.filter(user=user, recipe=obj).exists()
-        return result
+            return False
+        return Favorite.objects.filter(user=user, recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         user = request.user
-        result = False
         if user.is_anonymous:
-            return result
+            return False
         else:
-            result = ShoppingCard.objects.filter(
-                user=user, recipe=obj).exists()
-
-            return result
+            return ShoppingCard.objects.filter(user=user, recipe=obj).exists()
 
     @transaction.atomic
     def create(self, validated_data):

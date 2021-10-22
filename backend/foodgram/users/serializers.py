@@ -1,9 +1,9 @@
+from djoser.serializers import (UserCreateSerializer,
+                                UserSerializer as djoserUser)
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from recipes.models import Recipe
-from users.models import User, Subscriptions
-from djoser.serializers import (UserCreateSerializer,
-                                UserSerializer as djoserUser)
+from users.models import Subscriptions, User
 
 
 class FavoriteRecipeViewSerializer(serializers.ModelSerializer):
@@ -35,13 +35,9 @@ class UserSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         user = request.user
-        result = False
         if user.is_anonymous:
-            return result
-        else:
-            result = Subscriptions.objects.filter(user=obj,
-                                                  author=user).exists()
-        return result
+            return False
+        return Subscriptions.objects.filter(user=obj, author=user).exists()
 
     def get_recipes(self, obj):
         request = self.context.get('request')
@@ -99,14 +95,9 @@ class CustomUserSerializer(djoserUser):
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         user = request.user
-        result = False
-        test = obj
         if user.is_anonymous:
-            return result
-        else:
-            result = Subscriptions.objects.filter(user=user,
-                                                  author=obj).exists()
-        return result
+            return False
+        return Subscriptions.objects.filter(user=user, author=obj).exists()
 
 
 class SubscriptionsListSerializer(serializers.ModelSerializer):

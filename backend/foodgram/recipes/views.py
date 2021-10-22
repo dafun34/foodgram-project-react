@@ -1,32 +1,22 @@
-from django_filters.rest_framework import DjangoFilterBackend
-from .filters import TagFilter
 from django.db.models import Sum
-from .pagination import RecipePagination
-from prettytable import PrettyTable
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, status
-from rest_framework.views import APIView
-from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
-                                        IsAuthenticated,
-                                        IsAdminUser, AllowAny)
+from django_filters.rest_framework import DjangoFilterBackend
+from prettytable import PrettyTable
+from rest_framework import status, viewsets
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-from .models import (Recipe,
-                     Components,
-                     Ingredients,
-                     Tag,
-                     Favorite,
-                     ShoppingCard)
-from .permissions import IsAuthorOrAdminOrReadOnly
-from .serializers import (ComponentsSerializer,
-                          IngredientsSerializer,
-                          RecipeSerializer,
-                          ComponentsCreateSerializer,
-                          FavoriteRecipeViewSerializer,
-                          TagListCreateDelSerializer,
-                          # RecipeListSerializer
-                          )
+from rest_framework.views import APIView
 
+from .filters import TagFilter
+from .models import (Components, Favorite, Ingredients, Recipe, ShoppingCard,
+                     Tag)
+from .permissions import IsAuthorOrAdminOrReadOnly
+from .serializers import (ComponentsCreateSerializer, ComponentsSerializer,
+                          FavoriteRecipeViewSerializer, IngredientsSerializer,
+                          RecipeSerializer,
+                          TagListCreateDelSerializer)
 
 
 class TagsViewSet(viewsets.ModelViewSet):
@@ -128,4 +118,3 @@ class DownloadShoppingCartView(APIView):
             'Content-Disposition'] = ('attachment; '
                                       'filename={0}'.format(filename))
         return response
-

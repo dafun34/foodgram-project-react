@@ -1,6 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import SubscriptionsList, SubscribeCreate, HomeUserListView
+
+from .views import HomeUserListView, SubscribeCreate, SubscriptionsList
 
 router = DefaultRouter()
 
