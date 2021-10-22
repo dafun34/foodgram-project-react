@@ -28,6 +28,7 @@ from .serializers import (ComponentsSerializer,
                           )
 
 
+
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagListCreateDelSerializer
@@ -127,3 +128,4 @@ class DownloadShoppingCartView(APIView):
             'Content-Disposition'] = ('attachment; '
                                       'filename={0}'.format(filename))
         return response
+
