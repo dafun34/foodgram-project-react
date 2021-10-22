@@ -123,17 +123,17 @@ class RecipeSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         user = request.user
         recipe = Recipe.objects.create(author=user, **validated_data)
-        for tag in tags:
-            recipe.tags.add(tag)
+        recipe.tags.add(*tags)
+        components = []
         for ingredient in ingredients_data:
             some_compo = dict(ingredient)
             ingredient = some_compo['name']
-            component = Components.objects.create(
-                name=Ingredients.objects.get(pk=ingredient['id']),
+            components.append(Components.objects.create(
+                name=Ingredients(pk=ingredient['id']),
                 amount=some_compo['amount'],
-                component_in_recipe=recipe
+                component_in_recipe=recipe)
             )
-            recipe.ingredients.add(component)
+        recipe.ingredients.add(*components)
         return recipe
 
     @transaction.atomic
@@ -144,20 +144,20 @@ class RecipeSerializer(serializers.ModelSerializer):
             if Recipe._meta.get_field(item):
                 setattr(instance, item, validated_data[item])
         instance.tags.clear()
-        for tag in tags:
-            instance.tags.add(tag)
+        instance.tags.add(*tags)
 
         Components.objects.filter(component_in_recipe=instance).delete()
+        components = []
         for ingredient in ingredients_data:
             some_compo = dict(ingredient)
             ingredient = some_compo['name']
             amount = some_compo['amount']
-            component = Components.objects.create(
-                name=Ingredients.objects.get(pk=ingredient['id']),
+            components.append(Components.objects.create(
+                name=Ingredients(pk=ingredient['id']),
                 amount=amount,
-                component_in_recipe=instance
+                component_in_recipe=instance)
             )
-            instance.ingredients.add(component)
+        instance.ingredients.add(*components)
         instance.save()
         return instance
 

@@ -38,14 +38,14 @@ class TagsViewSet(viewsets.ModelViewSet):
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly,]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = [IsAuthorOrAdminOrReadOnly,]
+    permission_classes = [IsAuthorOrAdminOrReadOnly, ]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TagFilter
 
@@ -62,18 +62,16 @@ class ComponentsViewSet(viewsets.ModelViewSet):
 class FavoriteCreateDeleteView(APIView):
     permission_classes = [IsAuthenticated, ]
     pagination_class = None
+
     def get(self, request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
-        if Favorite.objects.filter(user=user).exists():
-            fav = get_object_or_404(Favorite, user=user)
+        fav, created = Favorite.objects.get_or_create(user=user)
+        if not created:
             if Favorite.objects.filter(user=user, recipe=recipe).exists():
                 return Response(data='Этот рецепт уже есть в избранном')
-            else:
-                fav.recipe.add(recipe)
-        else:
-            fav = Favorite.objects.create(user=user)
             fav.recipe.add(recipe)
+        fav.recipe.add(recipe)
         recipe_serializer = FavoriteRecipeViewSerializer(recipe)
         return Response(recipe_serializer.data, status.HTTP_201_CREATED)
 
@@ -87,18 +85,16 @@ class FavoriteCreateDeleteView(APIView):
 
 class CardAddDeleteRecipeView(APIView):
     permission_classes = [IsAuthenticated, ]
+
     def get(self, request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
-        if ShoppingCard.objects.filter(user=user).exists():
-            card = get_object_or_404(ShoppingCard, user=user)
+        cart, created = ShoppingCard.objects.get_or_create(user=user)
+        if not created:
             if ShoppingCard.objects.filter(user=user, recipe=recipe).exists():
                 return Response(data='Этот рецепт уже есть в корзине')
-            else:
-                card.recipe.add(recipe)
-        else:
-            card = ShoppingCard.objects.create(user=user)
-            card.recipe.add(recipe)
+            cart.recipe.add(recipe)
+        cart.recipe.add(recipe)
         recipe_serializer = FavoriteRecipeViewSerializer(recipe)
         return Response(recipe_serializer.data, status.HTTP_201_CREATED)
 
