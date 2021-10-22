@@ -48,14 +48,13 @@ jobs:
           file: .frontend/Dockerfile
           push: true
           tags: dafun/foodgram_front:latest
-
       - name: Push to Docker Hub
-          uses: docker/build-push-action@v2
-          with:
-            context: .backend/
-            file: .backend/Dockerfile
-            push: true
-            tags: dafun/foodgram_backend:latest
+        uses: docker/build-push-action@v2
+        with:
+          context: .backend/
+          file: .backend/Dockerfile
+          push: true
+          tags: dafun/foodgram_backend:latest
 
   deploy:
     runs-on: ubuntu-latest
