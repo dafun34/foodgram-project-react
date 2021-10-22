@@ -59,7 +59,7 @@ class Recipe(models.Model):
                                          verbose_name='Ингредиенты рецепта')
 
     cooking_time = models.PositiveSmallIntegerField(validators=(
-        MinValueValidator(0, message='Значние должно быть больше 0')),
+        [MinValueValidator(0, message='Значние должно быть больше 0')]),
         verbose_name='Время приготовления',
         blank=False,
         help_text=('Время приготовления в минутах',)
@@ -74,7 +74,7 @@ class Recipe(models.Model):
 
 class Components(models.Model):
     amount = models.PositiveSmallIntegerField(validators=(
-        MinValueValidator(0, message='Значение должно быть больше 0')),
+        [MinValueValidator(0, message='Значение должно быть больше 0')]),
         verbose_name='Количество')
 
     name = models.ForeignKey(Ingredients,
