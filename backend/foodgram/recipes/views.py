@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 from .filters import TagFilter
 from .models import (Components, Favorite, Ingredients, Recipe, ShoppingCard,
                      Tag)
-from .permissions import IsAuthorOrAdminOrReadOnly
+from .permissions import IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly
 from .serializers import (ComponentsCreateSerializer, ComponentsSerializer,
                           FavoriteRecipeViewSerializer, IngredientsSerializer,
                           RecipeSerializer,
@@ -22,7 +22,7 @@ from .serializers import (ComponentsCreateSerializer, ComponentsSerializer,
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagListCreateDelSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAdminOrReadOnly, ]
     pagination_class = None
 
 
