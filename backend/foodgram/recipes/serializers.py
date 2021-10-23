@@ -120,7 +120,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 component_in_recipe=recipe
             )
             )
-        compo = Components.objects.bulk_create(components)
+        Components.objects.bulk_create(components)
         return recipe
 
     @transaction.atomic
@@ -144,7 +144,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 amount=amount,
                 component_in_recipe=instance)
             )
-        compo = Components.objects.bulk_create(components)
+        Components.objects.bulk_create(components)
         instance.save()
         return instance
 
