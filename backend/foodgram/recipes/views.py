@@ -22,7 +22,7 @@ from .serializers import (ComponentsCreateSerializer, ComponentsSerializer,
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagListCreateDelSerializer
-    permission_classes = [IsAuthorOrAdminOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     pagination_class = None
 
 
