@@ -4,19 +4,17 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from prettytable import PrettyTable
 from rest_framework import status, viewsets
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .filters import TagFilter
 from .models import (Components, Favorite, Ingredients, Recipe, ShoppingCard,
                      Tag)
-from .permissions import IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrReadOnly
 from .serializers import (ComponentsCreateSerializer, ComponentsSerializer,
                           FavoriteRecipeViewSerializer, IngredientsSerializer,
-                          RecipeSerializer,
-                          TagListCreateDelSerializer)
+                          RecipeSerializer, TagListCreateDelSerializer)
 
 
 class TagsViewSet(viewsets.ModelViewSet):
@@ -29,7 +27,7 @@ class TagsViewSet(viewsets.ModelViewSet):
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAdminOrReadOnly, ]
     pagination_class = None
 
 

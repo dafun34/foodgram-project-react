@@ -1,8 +1,8 @@
-from djoser.serializers import (UserCreateSerializer,
-                                UserSerializer as djoserUser)
+from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserSerializer as djoserUser
+from recipes.models import Recipe
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from recipes.models import Recipe
 from users.models import Subscriptions, User
 
 

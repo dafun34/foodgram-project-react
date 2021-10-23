@@ -28,10 +28,10 @@ class TagsSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         try:
-            tag = Tag.objects.get(id=data)
+            Tag.objects.get(id=data)
         except ObjectDoesNotExist:
             raise serializers.ValidationError('Problem with tags id')
-        return tag
+        return Tag.objects.get(id=data)
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
