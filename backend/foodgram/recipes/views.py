@@ -19,11 +19,11 @@ from .serializers import (ComponentsCreateSerializer, ComponentsSerializer,
                           TagListCreateDelSerializer)
 
 
-class TagsViewSet(viewsets.ReadOnlyModelViewSet):
+class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagListCreateDelSerializer
-    pagination_class = None
     permission_classes = [IsAuthorOrAdminOrReadOnly, ]
+    pagination_class = None
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
