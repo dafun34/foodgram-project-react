@@ -22,7 +22,7 @@ from .serializers import (ComponentsCreateSerializer, ComponentsSerializer,
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagListCreateDelSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAuthorOrAdminOrReadOnly, ]
     pagination_class = None
 
 
@@ -96,6 +96,7 @@ class CardAddDeleteRecipeView(APIView):
 
 
 class DownloadShoppingCartView(APIView):
+    permission_classes = [IsAuthenticated, ]
     def get(self, request):
         table = PrettyTable()
         table.field_names = ['Ингредиент', 'кол-во', 'ед-ца']
