@@ -114,12 +114,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients_data:
             some_compo = dict(ingredient)
             ingredient = some_compo['name']
-            components.append(Components.objects.create(
+            components.append(Components(
                 name=Ingredients(pk=ingredient['id']),
                 amount=some_compo['amount'],
-                component_in_recipe=recipe)
+                component_in_recipe=recipe
             )
-        recipe.ingredients.add(*components)
+            )
+        compo = Components.objects.bulk_create(components)
         return recipe
 
     @transaction.atomic
@@ -138,12 +139,12 @@ class RecipeSerializer(serializers.ModelSerializer):
             some_compo = dict(ingredient)
             ingredient = some_compo['name']
             amount = some_compo['amount']
-            components.append(Components.objects.create(
+            components.append(Components(
                 name=Ingredients(pk=ingredient['id']),
                 amount=amount,
                 component_in_recipe=instance)
             )
-        instance.ingredients.add(*components)
+        compo = Components.objects.bulk_create(components)
         instance.save()
         return instance
 

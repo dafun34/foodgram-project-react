@@ -57,8 +57,6 @@ class FavoriteCreateDeleteView(APIView):
         user = self.request.user
         fav, created = Favorite.objects.get_or_create(user=user)
         if not created:
-            if Favorite.objects.filter(user=user, recipe=recipe).exists():
-                return Response(data='Этот рецепт уже есть в избранном')
             fav.recipe.add(recipe)
         fav.recipe.add(recipe)
         recipe_serializer = FavoriteRecipeViewSerializer(recipe)
@@ -79,8 +77,6 @@ class CardAddDeleteRecipeView(APIView):
         user = self.request.user
         cart, created = ShoppingCard.objects.get_or_create(user=user)
         if not created:
-            if ShoppingCard.objects.filter(user=user, recipe=recipe).exists():
-                return Response(data='Этот рецепт уже есть в корзине')
             cart.recipe.add(recipe)
         cart.recipe.add(recipe)
         recipe_serializer = FavoriteRecipeViewSerializer(recipe)
