@@ -61,8 +61,7 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           stack_file_name: docker-compose.yml
           script: |
-            sudo docker-compose stop
-            sudo docker-compose rm app
             sudo docker pull dafun/foodgram_backend
+            sudo docker stop $(sudo docker ps -a -q)
             cd foodgram-project-react/infra/
             sudo docker-compose up -d
