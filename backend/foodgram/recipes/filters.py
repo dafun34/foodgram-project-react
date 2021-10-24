@@ -1,6 +1,6 @@
 import django_filters as filters
 
-from .models import Recipe
+from .models import Ingredients, Recipe
 
 
 class TagFilter(filters.FilterSet):
@@ -23,3 +23,14 @@ class TagFilter(filters.FilterSet):
                 card_recipe__user=self.request.user
             )
         return Recipe.objects.all()
+
+
+class IngredientsFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name='name', method='start_name')
+
+    class Meta:
+        model = Ingredients
+        fields = ('name',)
+
+    def start_name(self, queryset, slug, name):
+        return queryset.filter(name__startwith=name)

@@ -115,12 +115,13 @@ class RecipeSerializer(serializers.ModelSerializer):
             some_compo = dict(ingredient)
             ingredient = some_compo['name']
             components.append(Components(
-                name=Ingredients(pk=ingredient['id']),
+                name=Ingredients.objects.get(pk=ingredient['id']),
                 amount=some_compo['amount'],
                 component_in_recipe=recipe
             )
             )
-        Components.objects.bulk_create(components)
+        compo = Components.objects.bulk_create(components)
+        recipe.ingredients.add(*compo)
         return recipe
 
     @transaction.atomic

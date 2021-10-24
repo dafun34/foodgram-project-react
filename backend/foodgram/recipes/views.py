@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .filters import TagFilter
+from .filters import IngredientsFilter, TagFilter
 from .models import (Components, Favorite, Ingredients, Recipe, ShoppingCard,
                      Tag)
 from .permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrReadOnly
@@ -28,6 +28,8 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     permission_classes = [IsAdminOrReadOnly, ]
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientsFilter
     pagination_class = None
 
 
@@ -56,8 +58,6 @@ class FavoriteCreateDeleteView(APIView):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
         fav, created = Favorite.objects.get_or_create(user=user)
-        if not created:
-            fav.recipe.add(recipe)
         fav.recipe.add(recipe)
         recipe_serializer = FavoriteRecipeViewSerializer(recipe)
         return Response(recipe_serializer.data, status.HTTP_201_CREATED)
@@ -76,8 +76,6 @@ class CardAddDeleteRecipeView(APIView):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         user = self.request.user
         cart, created = ShoppingCard.objects.get_or_create(user=user)
-        if not created:
-            cart.recipe.add(recipe)
         cart.recipe.add(recipe)
         recipe_serializer = FavoriteRecipeViewSerializer(recipe)
         return Response(recipe_serializer.data, status.HTTP_201_CREATED)
