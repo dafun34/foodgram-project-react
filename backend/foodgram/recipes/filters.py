@@ -26,11 +26,8 @@ class TagFilter(filters.FilterSet):
 
 
 class IngredientsFilter(filters.FilterSet):
-    name = filters.CharFilter(field_name='name', method='start_name')
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = Ingredients
-        fields = ('name',)
-
-    def start_name(self, queryset, slug, name):
-        return queryset.filter(name__startwith=name)
+        fields = ('name', )
